@@ -16,7 +16,10 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Bot token - replace with your actual bot token
-BOT_TOKEN = "8015015567:AAEkxdcBMVtZe9J7BWLPY7zfAo68h3egLXI"
+from dotenv import load_dotenv
+load_dotenv()
+
+BOT_TOKEN = os.getenv("BOT_TOKEN")
 
 # Store user files temporarily
 user_files: Dict[int, List[bytes]] = {}

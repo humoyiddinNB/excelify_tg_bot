@@ -1,0 +1,36 @@
+.env
+# Python cache files
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+
+# Virtual environment
+.venv/
+env/
+venv/
+
+# Environment variables
+
+
+# IDE/editor config files
+*.vscode/
+*.idea/
+*.sublime-workspace
+*.sublime-project
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Jupyter notebooks checkpoints (agar ishlatsang)
+.ipynb_checkpoints/
+
+# Log files
+*.log
+
+# Compiled files
+*.egg-info/
+build/
+dist/
