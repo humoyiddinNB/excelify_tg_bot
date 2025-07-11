@@ -16,24 +16,16 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Bot token - replace with your actual bot token
-try:
-    from dotenv import load_dotenv
-
-    load_dotenv()
-except ImportError:
-    # dotenv is not available, which is fine in production
-    pass
+from dotenv import load_dotenv
+load_dotenv()
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 
 # Store user files temporarily
 user_files: Dict[int, List[bytes]] = {}
 
-
 class ExcelCombinerBot:
     def __init__(self):
-        if not BOT_TOKEN:
-            raise ValueError("BOT_TOKEN environment variable is not set")
         self.app = Application.builder().token(BOT_TOKEN).build()
         self.setup_handlers()
 
@@ -41,8 +33,8 @@ class ExcelCombinerBot:
         """Set up command and message handlers"""
         self.app.add_handler(CommandHandler("start", self.start_command))
         self.app.add_handler(MessageHandler(filters.Document.FileExtension("xlsx") |
-                                            filters.Document.FileExtension("xls"),
-                                            self.handle_excel_file))
+                                          filters.Document.FileExtension("xls"),
+                                          self.handle_excel_file))
         self.app.add_handler(CallbackQueryHandler(self.handle_callback))
 
     async def start_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -136,14 +128,14 @@ Welcome! This bot helps you combine multiple Excel files into one.
                     df = pd.read_excel(BytesIO(file_data))
 
                     # Add source file column
-                    df['Source_File'] = f"File_{i + 1}"
+                    df['Source_File'] = f"File_{i+1}"
                     combined_data.append(df)
-                    file_names.append(f"File_{i + 1}")
+                    file_names.append(f"File_{i+1}")
 
                 except Exception as e:
-                    logger.error(f"Error reading file {i + 1}: {e}")
+                    logger.error(f"Error reading file {i+1}: {e}")
                     await query.edit_message_text(
-                        f"❌ Error reading file {i + 1}. Please make sure all files are valid Excel files."
+                        f"❌ Error reading file {i+1}. Please make sure all files are valid Excel files."
                     )
                     return
 
@@ -165,9 +157,9 @@ Welcome! This bot helps you combine multiple Excel files into one.
                     document=output_buffer,
                     filename="combined_excel_file.xlsx",
                     caption=f"✅ **Combined Excel File**\n\n"
-                            f"📊 **Total rows:** {len(combined_df)}\n"
-                            f"📁 **Files combined:** {len(file_names)}\n"
-                            f"📋 **Columns:** {len(combined_df.columns)}",
+                           f"📊 **Total rows:** {len(combined_df)}\n"
+                           f"📁 **Files combined:** {len(file_names)}\n"
+                           f"📋 **Columns:** {len(combined_df.columns)}",
                     parse_mode='Markdown'
                 )
 
@@ -200,21 +192,15 @@ Welcome! This bot helps you combine multiple Excel files into one.
         print("🔄 Bot is running! Press Ctrl+C to stop.")
         self.app.run_polling(allowed_updates=Update.ALL_TYPES)
 
-
 def main():
     """Main function to run the bot"""
-    if not BOT_TOKEN:
-        print("❌ Please set your BOT_TOKEN environment variable")
+    if BOT_TOKEN == "YOUR_BOT_TOKEN_HERE":
+        print("❌ Please set your bot token in BOT_TOKEN variable")
         print("💡 Get your bot token from @BotFather on Telegram")
         return
 
-    try:
-        bot = ExcelCombinerBot()
-        bot.run()
-    except Exception as e:
-        print(f"❌ Error starting bot: {e}")
-        logging.error(f"Bot startup error: {e}")
-
+    bot = ExcelCombinerBot()
+    bot.run()
 
 if __name__ == "__main__":
     main()
