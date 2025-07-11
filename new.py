@@ -1,3 +1,6 @@
+from flask import Flask
+import threading
+
 import os
 import asyncio
 import logging
@@ -7,6 +10,20 @@ from telegram.ext import Application, CommandHandler, MessageHandler, CallbackQu
 import pandas as pd
 from io import BytesIO
 import tempfile
+
+
+# Fake HTTP server for Render
+app_server = Flask(__name__)
+
+@app_server.route('/')
+def index():
+    return "Bot is alive!", 200
+
+def run_http_server():
+    port = int(os.environ.get("PORT", 5000))
+    app_server.run(host="0.0.0.0", port=port)
+
+
 
 # Configure logging
 logging.basicConfig(
@@ -193,12 +210,19 @@ Welcome! This bot helps you combine multiple Excel files into one.
         self.app.run_polling(allowed_updates=Update.ALL_TYPES)
 
 def main():
-    """Main function to run the bot"""
-    if BOT_TOKEN == "YOUR_BOT_TOKEN_HERE":
-        print("❌ Please set your bot token in BOT_TOKEN variable")
-        print("💡 Get your bot token from @BotFather on Telegram")
+    """Main function to run Flask web server and Telegram bot in parallel"""
+
+    # Check that bot token exists
+    if not BOT_TOKEN:
+        print("❌ BOT_TOKEN not found in .env file.")
+        print("💡 Please make sure your .env file has a line like: BOT_TOKEN=your_token_here")
         return
 
+    # 1. Run Flask fake HTTP server in background (Render needs a listening port)
+    threading.Thread(target=run_http_server).start()
+
+    # 2. Start the Telegram bot with polling
+    print("🤖 Telegram bot is starting...")
     bot = ExcelCombinerBot()
     bot.run()
 
