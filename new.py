@@ -210,21 +210,26 @@ Welcome! This bot helps you combine multiple Excel files into one.
         self.app.run_polling(allowed_updates=Update.ALL_TYPES)
 
 def main():
-    """Main function to run Flask web server and Telegram bot in parallel"""
-
-    # Check that bot token exists
     if not BOT_TOKEN:
         print("❌ BOT_TOKEN not found in .env file.")
-        print("💡 Please make sure your .env file has a line like: BOT_TOKEN=your_token_here")
         return
 
-    # 1. Run Flask fake HTTP server in background (Render needs a listening port)
+    WEBHOOK_URL = os.getenv("WEBHOOK_URL")
+    if not WEBHOOK_URL:
+        print("❌ WEBHOOK_URL not found in .env file.")
+        return
+
+    # Fake Flask server for Render to keep app alive (optional)
     threading.Thread(target=run_http_server).start()
 
-    # 2. Start the Telegram bot with polling
-    print("🤖 Telegram bot is starting...")
+    # Start bot with webhook
+    print("🤖 Telegram bot is starting with webhook...")
     bot = ExcelCombinerBot()
-    bot.run()
+    bot.app.run_webhook(
+        listen="0.0.0.0",
+        port=int(os.environ.get("PORT", 5000)),
+        webhook_url=f"{WEBHOOK_URL}/{BOT_TOKEN}"
+    )
 
 if __name__ == "__main__":
     main()
